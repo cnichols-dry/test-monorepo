@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.4'
 
 services: 
   backend:
@@ -11,7 +11,7 @@ services:
       - ./backend:/app
       - /app/node_modules
     env_file: 
-      - ./backend./.env
+      - ./backend/.env
   
   frontend:
     build:
