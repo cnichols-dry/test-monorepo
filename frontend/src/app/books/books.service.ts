@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
-const BACKEND_URL = `${process.env.apiUrl}/books/`;
+const BACKEND_URL = `${environment.apiUrl}/books/`;
 
 @Injectable({ providedIn: 'root' })
 export class BooksService {
