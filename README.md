@@ -1,6 +1,5 @@
 # Book-Shop
 book shop web app build with angular, express and mongodb
-deployed on vercel
 
 # Sample user
  - email: test3@test.com
