@@ -2,7 +2,7 @@
 book shop web app build with angular, express and mongodb
 
 # Sample user
-
+email: test3@test.com
 password: test3test
 
 # Run locally on your machine with mongo atlas
