@@ -1,0 +1,67 @@
+<mat-card>
+  <mat-spinner *ngIf="isLoading"></mat-spinner>
+  <form [formGroup]="form" (submit)="onSaveBook()">
+    <mat-form-field>
+      <input
+        matInput
+        type="text"
+        formControlName="title"
+        placeholder="Book Title"
+      />
+      <mat-error *ngIf="form.get('title').invalid"
+        >Please enter Book title.</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field>
+      <input
+        matInput
+        type="text"
+        formControlName="author"
+        placeholder="Author Name"
+      />
+      <mat-error *ngIf="form.get('author').invalid"
+        >Please enter Author Name.</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field>
+      <input
+        matInput
+        type="number"
+        formControlName="price"
+        placeholder="Price"
+      />
+      <mat-error *ngIf="form.get('price').invalid"
+        >Please enter price.</mat-error
+      >
+    </mat-form-field>
+    <mat-form-field>
+      <input
+        matInput
+        type="text"
+        formControlName="image"
+        placeholder="Image URL"
+      />
+      <mat-error *ngIf="form.get('image').invalid"
+        >Please enter Image URL.</mat-error
+      >
+    </mat-form-field>
+    <div class="image-preview" *ngIf="form.get('image').valid"
+    >
+      <img [src]="form.get('image').value" [alt]="form.value.title">
+    </div>
+
+    <mat-form-field>
+      <textarea
+        matInput
+        rows="4"
+        formControlName="description"
+        placeholder=" Description"
+      ></textarea>
+      <mat-error *ngIf="form.get('description').invalid"
+        >Please enter description.</mat-error
+      >
+    </mat-form-field>
+    <br />
+    <button mat-raised-button color="accent" type="submit">Save Book</button>
+  </form>
+</mat-card>
