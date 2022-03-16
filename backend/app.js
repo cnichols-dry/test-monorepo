@@ -8,7 +8,7 @@ const userRoutes = require('./routes/user');
 
 const app = express();
 
-mongoose.connect(`mongodb+srv://michael:${process.env.MONGO_ATLAS_PW}@${process.env.MONGO_ATLAS_CLUSTER}/${process.env.MONGO_DB_NAME}`,{useNewUrlParser:true,useUnifiedTopology:true}).then(()=>{
+mongoose.connect(`mongodb+srv://${process.env.MONGO_ATLAS_USER}:${process.env.MONGO_ATLAS_PW}@${process.env.MONGO_ATLAS_CLUSTER}/${process.env.MONGO_DB_NAME}`,{useNewUrlParser:true,useUnifiedTopology:true}).then(()=>{
     console.log('Connected to Databse');
 }).catch(()=>{
   console.log("Connection failed!");
