@@ -27,6 +27,7 @@ app.use((req, res, next) => {
     "Access-Control-Allow-Methods",
     "GET, POST, PATCH, PUT, DELETE, OPTIONS"
   );
+  res.setHeader('Cache-Control', 's-max-age=1, stale-while-revalidate');
   next();
 });
 
