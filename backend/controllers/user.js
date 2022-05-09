@@ -30,7 +30,7 @@ exports.userLogin = async (req, res, next) => {
     const user = await User.findOne({ email: req.body.email });
     const isAuth = await bcrypt.compare(req.body.password, user.password);
     if (!isAuth) {
-      throw new Error();
+      throw new Error('passwords do not match');
     }
     const token = jwt.sign(
       { eamil: user.email, userId: user._id },
