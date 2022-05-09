@@ -1,5 +1,9 @@
-# Book-Shop
-book shop web app build with angular, express and mongodb
+# Book Shop
+- book shop web app build with angular, express and mongodb
+- auto deployed to vercel after push to main
+
+# Live Version
+https://book-shop-frontend.vercel.app/
 
 # Sample user
  - email: test3@test.com
@@ -12,6 +16,5 @@ book shop web app build with angular, express and mongodb
   - MONGO_ATLAS_USER=<mongouser> 
   - MONGO_ATLAS_PW=<userpassword>
   - MONGO_ATLAS_CLUSTER=<clustername>
-3. run docker-comopse up (make sure dokcer is installed!)
+3. run docker-comopse up (make sure docker is installed!)
 4. go to http://localhost:4200 and explore the project
-5. Explore live version: https://book-shop-frontend-etw7jvs99-michaeltolchinsky.vercel.app/
