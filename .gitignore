@@ -2,3 +2,4 @@
 node_modules
 **./frontend/src/environments/environment.prod.ts
 **./frontend/src/environments/environment.ts
+**tmp
