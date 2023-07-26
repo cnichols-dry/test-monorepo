@@ -18,12 +18,6 @@ export class BooksService {
   constructor(private http: HttpClient, private router: Router) { }
 
   addBook(title: string, author: string, price: number, imageURL: string, description: string) {
-    // const postData = new FormData();
-    // postData.append('title', title);
-    // postData.append('author', author);
-    // postData.append('price', price.toString());
-    // postData.append('imageURL', imageURL);
-    // postData.append('description', description);
     let postData = {
       title:title,
       author:author,
