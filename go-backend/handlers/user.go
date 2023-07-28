@@ -10,6 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -60,7 +61,7 @@ func UserLogin(c *fiber.Ctx) error {
 		})
 	}
 
-	token, _ := GenerateJWTToken(email, user.Id.Hex())
+	token, _ := GenerateJWTToken(email, user.Id)
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"token":     token,
@@ -69,12 +70,15 @@ func UserLogin(c *fiber.Ctx) error {
 	})
 }
 
-func GenerateJWTToken(email, userId string) (string, error) {
+func GenerateJWTToken(email string, userId primitive.ObjectID) (string, error) {
+	// Calculate the expiration time (1 hour from now)
+	expirationTime := time.Now().Add(time.Hour * 1).Unix()
+
 	// Create a new token with custom claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"email":  email,
-		"userId": userId,
-		"exp":    time.Now().Add(time.Hour * 1),
+		"userId": userId.Hex(),
+		"exp":    expirationTime, // Set the expiration time as seconds since Unix epoch
 	})
 
 	// Sign the token with the secret key and get the complete, signed token as a string
