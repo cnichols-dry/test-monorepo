@@ -49,7 +49,6 @@ func GetBooks(c *fiber.Ctx) error {
 
 func GetBook(c *fiber.Ctx) error {
 	var book models.Book
-	fmt.Println("bookid:", c.Params("id"))
 	bookId, _ := primitive.ObjectIDFromHex(c.Params("id"))
 
 	err := database.BooksCollection.FindOne(context.Background(), bson.M{"_id": bookId}).Decode(&book)
