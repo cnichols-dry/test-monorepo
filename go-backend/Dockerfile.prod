@@ -1,25 +1,17 @@
-# Build Stage
-FROM golang:1.20.5 AS build
+FROM golang:1.20.5 as build
 
-WORKDIR /go/src/app
+WORKDIR /go/src/go-backend
 
-# Copy only the necessary files to leverage Docker cache
 COPY go.mod go.sum ./
+
 RUN go mod download
 
-COPY . .
+COPY main.go .
 
-# Build the Go binary
-RUN CGO_ENABLED=0 GOOS=linux go build -o /go/bin/app ./cmd
+RUN go build -o /app .
 
-# Final Stage
-FROM alpine:latest
+FROM golang:1.20.5
 
-# Copy the Go binary from the build stage
-COPY --from=build /go/src/app/ /app
+COPY --from=build /app .
 
-# Ensure executable permission for the binary
-RUN chmod +x /app
-
-# Run the Go binary
 CMD ["/app"]
