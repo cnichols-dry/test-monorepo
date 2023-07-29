@@ -9,14 +9,11 @@ RUN go mod download
 
 COPY . .
 
-# Build the Go binary with CGO enabled
-RUN CGO_ENABLED=1 GOOS=linux go build -ldflags="-s -w" -o app .
-
 # Final Stage
 FROM alpine:latest
 
 # Copy the Go binary from the build stage
-COPY --from=build /usr/src/app/app /app
+COPY --from=build /usr/src/app/ /app
 
 # Set the working directory
 WORKDIR /
