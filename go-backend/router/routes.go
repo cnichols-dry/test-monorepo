@@ -27,5 +27,5 @@ func SetupBooksRoutes(app *fiber.App) {
 
 	api.Get("/", handlers.GetBooks)
 	api.Get("/:id", handlers.GetBook)
-	api.Get("/cart/:userId", handlers.GetCart)
+	api.Get("/cart/:userId", middleware.JwtMiddleware(), handlers.GetCart)
 }
