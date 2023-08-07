@@ -32,11 +32,21 @@ func CreateUser(c *fiber.Ctx) error {
 		Password: string(hashedPassword),
 	}
 
-	_, insertErr := database.UsersCollection.InsertOne(context.Background(), user)
-	if insertErr != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Invalid authentication credentials",
-		})
+	// Create a channel to signal complete
+	resultChan := make(chan error)
+
+	go func() {
+		_, insertErr := database.UsersCollection.InsertOne(context.Background(), user)
+		if insertErr != nil {
+			resultChan <- handleError(c, "Invalid authentication credentials", fiber.StatusBadRequest)
+		} else {
+			resultChan <- nil
+		}
+	}()
+
+	// Wait for the Goroutine to complete
+	if err := <-resultChan; err != nil {
+		return err
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
@@ -52,13 +62,24 @@ func UserLogin(c *fiber.Ctx) error {
 
 	email := requestBody["email"]
 	password := requestBody["password"]
-	database.UsersCollection.FindOne(context.Background(), bson.M{"email": email}).Decode(&user)
 
-	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"message": "Invalid authentication credentials",
-		})
+	// Create a channel to signal complete
+	resultChan := make(chan error)
+
+	go func() {
+		database.UsersCollection.FindOne(context.Background(), bson.M{"email": email}).Decode(&user)
+
+		err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+		if err != nil {
+			resultChan <- handleError(c, "Invalid authentication credentials", fiber.StatusUnauthorized)
+		} else {
+			resultChan <- nil
+		}
+	}()
+
+	// Wait for the Goroutine to complete
+	if err := <-resultChan; err != nil {
+		return err
 	}
 
 	token, _ := GenerateJWTToken(email, user.Id)
@@ -67,6 +88,12 @@ func UserLogin(c *fiber.Ctx) error {
 		"token":     token,
 		"expiresIn": 3600,
 		"userId":    user.Id.Hex(),
+	})
+}
+
+func handleError(c *fiber.Ctx, message string, status int) error {
+	return c.Status(status).JSON(fiber.Map{
+		"message": message,
 	})
 }
 
