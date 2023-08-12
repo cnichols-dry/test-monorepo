@@ -51,9 +51,21 @@ func GetBook(c *fiber.Ctx) error {
 	var book models.Book
 	bookId, _ := primitive.ObjectIDFromHex(c.Params("id"))
 
-	err := database.BooksCollection.FindOne(context.Background(), bson.M{"_id": bookId}).Decode(&book)
-	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"message": fmt.Sprintf("book %s not found", bookId)})
+	// Create a channel to signal complete
+	resultChan := make(chan error)
+
+	go func() {
+		err := database.BooksCollection.FindOne(context.Background(), bson.M{"_id": bookId}).Decode(&book)
+		if err != nil {
+			resultChan <- handleError(c, fmt.Sprintf("book %s not found", bookId), fiber.StatusNotFound)
+		} else {
+			resultChan <- nil
+		}
+	}()
+
+	// Wait for the Goroutine to complete
+	if err := <-resultChan; err != nil {
+		return err
 	}
 
 	return c.Status(fiber.StatusOK).JSON(book)
@@ -66,13 +78,23 @@ func GetCart(c *fiber.Ctx) error {
 			"message": "Invalid user ID",
 		})
 	}
-
 	user := models.User{}
-	err = database.UsersCollection.FindOne(context.Background(), bson.M{"_id": userId}).Decode(&user)
-	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": "User not found",
-		})
+
+	// Create a channel to signal complete
+	resultChan := make(chan error)
+
+	go func() {
+		err = database.UsersCollection.FindOne(context.Background(), bson.M{"_id": userId}).Decode(&user)
+		if err != nil {
+			resultChan <- handleError(c, "User not found", fiber.StatusNotFound)
+		} else {
+			resultChan <- nil
+		}
+	}()
+
+	// Wait for the Goroutine to complete
+	if err := <-resultChan; err != nil {
+		return err
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -89,13 +111,25 @@ func CreateBook(c *fiber.Ctx) error {
 	}
 	book.Id = primitive.NewObjectID()
 
-	result, err := database.BooksCollection.InsertOne(context.Background(), book)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Creating a book failed"})
+	// Create a channel to signal complete
+	resultChan := make(chan error)
+
+	go func() {
+		_, err := database.BooksCollection.InsertOne(context.Background(), book)
+		if err != nil {
+			resultChan <- handleError(c, "Creating a book failed", fiber.StatusBadRequest)
+		} else {
+			resultChan <- nil
+		}
+	}()
+
+	// Wait for the Goroutine to complete
+	if err := <-resultChan; err != nil {
+		return err
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Book added successfully",
-		"book": result})
+		"book": book})
 }
 
 func UpdateBook(c *fiber.Ctx) error {
@@ -104,9 +138,21 @@ func UpdateBook(c *fiber.Ctx) error {
 		return err
 	}
 
-	_, err := database.BooksCollection.ReplaceOne(context.Background(), bson.M{"_id": book.Id}, book)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Could not update book"})
+	// Create a channel to signal complete
+	resultChan := make(chan error)
+
+	go func() {
+		_, err := database.BooksCollection.ReplaceOne(context.Background(), bson.M{"_id": book.Id}, book)
+		if err != nil {
+			resultChan <- handleError(c, "Could not update book", fiber.StatusBadRequest)
+		} else {
+			resultChan <- nil
+		}
+	}()
+
+	// Wait for the Goroutine to complete
+	if err := <-resultChan; err != nil {
+		return err
 	}
 
 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Updated successfully"})
@@ -115,12 +161,22 @@ func UpdateBook(c *fiber.Ctx) error {
 func DeleteBook(c *fiber.Ctx) error {
 	bookId, _ := primitive.ObjectIDFromHex(c.Params("id"))
 
-	result, err := database.BooksCollection.DeleteOne(context.Background(), bson.M{"_id": bookId})
+	// Create a channel to signal complete
+	resultChan := make(chan error)
 
-	if err != nil || result.DeletedCount == 0 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "deleting book failed",
-		})
+	go func() {
+		result, err := database.BooksCollection.DeleteOne(context.Background(), bson.M{"_id": bookId})
+
+		if err != nil || result.DeletedCount == 0 {
+			resultChan <- handleError(c, "deleting book failed", fiber.StatusBadRequest)
+		} else {
+			resultChan <- nil
+		}
+	}()
+
+	// Wait for the Goroutine to complete
+	if err := <-resultChan; err != nil {
+		return err
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
