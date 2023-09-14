@@ -8,7 +8,7 @@ import (
 )
 
 func SetupUserRoutes(app *fiber.App) {
-	api := app.Group("/api/user")
+	api := app.Group("/api/users")
 	api.Post("/signup", handlers.CreateUser)
 	api.Post("/login", handlers.UserLogin)
 }
